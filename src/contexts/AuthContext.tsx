@@ -1,10 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
+import { apiClient, LoginRequest, SignupRequest } from '../lib/api'
+
+interface User {
+  id: number
+  email: string
+  fullName?: string
+}
 
 interface AuthContextType {
   user: User | null
-  session: Session | null
   userRole: 'admin' | 'manager' | 'staff' | null
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signUp: (email: string, password: string, fullName: string, role: 'admin' | 'manager' | 'staff') => Promise<{ error: any }>
@@ -24,99 +28,90 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
   const [userRole, setUserRole] = useState<'admin' | 'manager' | 'staff' | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchUserRole(session.user.id)
-      }
-      setLoading(false)
-    })
+    // Check if user is already logged in
+    const token = localStorage.getItem('authToken')
+    const userData = localStorage.getItem('userData')
+    const roleData = localStorage.getItem('userRole')
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchUserRole(session.user.id)
-      } else {
-        setUserRole(null)
+    if (token && userData && roleData) {
+      try {
+        setUser(JSON.parse(userData))
+        setUserRole(roleData as 'admin' | 'manager' | 'staff')
+      } catch (error) {
+        console.error('Error parsing stored user data:', error)
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('userData')
+        localStorage.removeItem('userRole')
       }
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+    }
+    
+    setLoading(false)
   }, [])
 
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single()
-
-      if (error) {
-        console.error('Error fetching user role:', error)
-        return
-      }
-
-      setUserRole(data.role)
-    } catch (error) {
-      console.error('Error fetching user role:', error)
-    }
+  const extractRoleFromRoles = (roles: string[]): 'admin' | 'manager' | 'staff' => {
+    if (roles.includes('ROLE_ADMIN')) return 'admin'
+    if (roles.includes('ROLE_MANAGER')) return 'manager'
+    return 'staff'
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error }
+    try {
+      const response = await apiClient.login({ email, password })
+      
+      // Store auth data
+      localStorage.setItem('authToken', response.token)
+      
+      const userData = {
+        id: response.id,
+        email: response.email
+      }
+      
+      const role = extractRoleFromRoles(response.roles)
+      
+      localStorage.setItem('userData', JSON.stringify(userData))
+      localStorage.setItem('userRole', role)
+      
+      setUser(userData)
+      setUserRole(role)
+      
+      return { error: null }
+    } catch (error: any) {
+      console.error('Sign in error:', error)
+      return { error: { message: error.message || 'Login failed' } }
+    }
   }
 
   const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'manager' | 'staff') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    if (error) return { error }
-
-    if (data.user) {
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert([
-          {
-            id: data.user.id,
-            email,
-            full_name: fullName,
-            role,
-          },
-        ])
-
-      if (profileError) {
-        console.error('Error creating user profile:', profileError)
-      }
+    try {
+      const roleArray = [role] // Convert single role to array format expected by backend
+      await apiClient.register({ 
+        fullName, 
+        email, 
+        password, 
+        role: roleArray 
+      })
+      
+      return { error: null }
+    } catch (error: any) {
+      console.error('Sign up error:', error)
+      return { error: { message: error.message || 'Registration failed' } }
     }
-
-    return { error }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('userData')
+    localStorage.removeItem('userRole')
+    setUser(null)
+    setUserRole(null)
   }
 
   const value = {
     user,
-    session,
     userRole,
     signIn,
     signUp,

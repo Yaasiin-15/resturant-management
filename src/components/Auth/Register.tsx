@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ChefHat, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -15,8 +15,10 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   
   const { signUp, user } = useAuth()
+  const navigate = useNavigate()
 
   if (user) {
     return <Navigate to="/login" replace />
@@ -25,6 +27,7 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
@@ -38,18 +41,27 @@ export default function Register() {
 
     setLoading(true)
 
-    const { error } = await signUp(
-      formData.email,
-      formData.password,
-      formData.fullName,
-      formData.role
-    )
-    
-    if (error) {
-      setError(error.message)
+    try {
+      const { error } = await signUp(
+        formData.email,
+        formData.password,
+        formData.fullName,
+        formData.role
+      )
+      
+      if (error) {
+        setError(error.message)
+      } else {
+        setSuccess(true)
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
+      }
+    } catch (err: any) {
+      setError(err.message || 'Registration failed')
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -81,6 +93,12 @@ export default function Register() {
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                Account created successfully! Redirecting to login...
               </div>
             )}
 

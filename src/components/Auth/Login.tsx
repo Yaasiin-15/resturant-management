@@ -21,13 +21,17 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    const { error } = await signIn(email, password)
-    
-    if (error) {
-      setError(error.message)
+    try {
+      const { error } = await signIn(email, password)
+      
+      if (error) {
+        setError(error.message)
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred')
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   return (
@@ -139,6 +143,16 @@ export default function Login() {
               </span>
             </div>
           </form>
+
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h4>
+            <div className="text-xs text-blue-800 space-y-1">
+              <p><strong>Admin:</strong> admin@restaurant.com / password123</p>
+              <p><strong>Manager:</strong> manager@restaurant.com / password123</p>
+              <p><strong>Staff:</strong> staff@restaurant.com / password123</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
