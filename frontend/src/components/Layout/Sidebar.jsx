@@ -14,12 +14,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
-interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
-}
-
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose }) {
   const { userRole, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()

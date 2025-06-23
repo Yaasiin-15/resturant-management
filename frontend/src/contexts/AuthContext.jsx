@@ -1,22 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { apiClient, LoginRequest, SignupRequest } from '../lib/api'
+import { apiClient } from '../lib/api'
 
-interface User {
-  id: number
-  email: string
-  fullName?: string
-}
-
-interface AuthContextType {
-  user: User | null
-  userRole: 'admin' | 'manager' | 'staff' | null
-  signIn: (email: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'manager' | 'staff') => Promise<{ error: any }>
-  signOut: () => Promise<void>
-  loading: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext(undefined)
 
 export function useAuth() {
   const context = useContext(AuthContext)
@@ -26,9 +11,9 @@ export function useAuth() {
   return context
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [userRole, setUserRole] = useState<'admin' | 'manager' | 'staff' | null>(null)
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [userRole, setUserRole] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (token && userData && roleData) {
       try {
         setUser(JSON.parse(userData))
-        setUserRole(roleData as 'admin' | 'manager' | 'staff')
+        setUserRole(roleData)
       } catch (error) {
         console.error('Error parsing stored user data:', error)
         localStorage.removeItem('authToken')
@@ -52,13 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false)
   }, [])
 
-  const extractRoleFromRoles = (roles: string[]): 'admin' | 'manager' | 'staff' => {
+  const extractRoleFromRoles = (roles) => {
     if (roles.includes('ROLE_ADMIN')) return 'admin'
     if (roles.includes('ROLE_MANAGER')) return 'manager'
     return 'staff'
   }
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email, password) => {
     try {
       const response = await apiClient.login({ email, password })
       
@@ -79,13 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserRole(role)
       
       return { error: null }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign in error:', error)
       return { error: { message: error.message || 'Login failed' } }
     }
   }
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'manager' | 'staff') => {
+  const signUp = async (email, password, fullName, role) => {
     try {
       const roleArray = [role] // Convert single role to array format expected by backend
       await apiClient.register({ 
@@ -96,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       
       return { error: null }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign up error:', error)
       return { error: { message: error.message || 'Registration failed' } }
     }

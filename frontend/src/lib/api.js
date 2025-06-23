@@ -1,32 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface SignupRequest {
-  fullName: string
-  email: string
-  password: string
-  role: string[]
-}
-
-export interface LoginResponse {
-  token: string
-  type: string
-  id: number
-  email: string
-  roles: string[]
-}
-
-export interface ApiError {
-  message: string
-  status?: number
-}
-
 class ApiClient {
-  private getAuthHeaders(): HeadersInit {
+  getAuthHeaders() {
     const token = localStorage.getItem('authToken')
     return {
       'Content-Type': 'application/json',
@@ -34,7 +9,7 @@ class ApiClient {
     }
   }
 
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
+  async login(credentials) {
     const response = await fetch(`${API_BASE_URL}/auth/signin`, {
       method: 'POST',
       headers: {
@@ -51,13 +26,13 @@ class ApiClient {
     return response.json()
   }
 
-  async register(userData: SignupRequest): Promise<{ message: string }> {
+  async register(userData) {
     const response = await fetch(`${API_BASE_URL}/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(credentials),
+      body: JSON.stringify(userData),
     })
 
     if (!response.ok) {
@@ -68,7 +43,7 @@ class ApiClient {
     return response.json()
   }
 
-  async getProfile(): Promise<any> {
+  async getProfile() {
     const response = await fetch(`${API_BASE_URL}/users/profile`, {
       headers: this.getAuthHeaders(),
     })
@@ -81,7 +56,7 @@ class ApiClient {
   }
 
   // Menu API
-  async getMenuItems(): Promise<any[]> {
+  async getMenuItems() {
     const response = await fetch(`${API_BASE_URL}/menu/items`, {
       headers: this.getAuthHeaders(),
     })
@@ -94,7 +69,7 @@ class ApiClient {
   }
 
   // Tables API
-  async getTables(): Promise<any[]> {
+  async getTables() {
     const response = await fetch(`${API_BASE_URL}/tables`, {
       headers: this.getAuthHeaders(),
     })
@@ -107,7 +82,7 @@ class ApiClient {
   }
 
   // Orders API
-  async getOrders(): Promise<any[]> {
+  async getOrders() {
     const response = await fetch(`${API_BASE_URL}/orders`, {
       headers: this.getAuthHeaders(),
     })
@@ -120,7 +95,7 @@ class ApiClient {
   }
 
   // Reservations API
-  async getReservations(): Promise<any[]> {
+  async getReservations() {
     const response = await fetch(`${API_BASE_URL}/reservations`, {
       headers: this.getAuthHeaders(),
     })

@@ -16,7 +16,7 @@ export default function Login() {
     return <Navigate to={`/${userRole}`} replace />
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -27,7 +27,7 @@ export default function Login() {
       if (error) {
         setError(error.message)
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)

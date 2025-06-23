@@ -4,13 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
-interface DashboardLayoutProps {
-  children: React.ReactNode
-  title: string
-  requiredRole?: 'admin' | 'manager' | 'staff'
-}
-
-export default function DashboardLayout({ children, title, requiredRole }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, title, requiredRole }) {
   const { user, userRole, loading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 

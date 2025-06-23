@@ -9,7 +9,7 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'staff' as 'admin' | 'manager' | 'staff'
+    role: 'staff'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -24,7 +24,7 @@ export default function Register() {
     return <Navigate to="/login" replace />
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSuccess(false)
@@ -57,14 +57,14 @@ export default function Register() {
           navigate('/login')
         }, 2000)
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'Registration failed')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value

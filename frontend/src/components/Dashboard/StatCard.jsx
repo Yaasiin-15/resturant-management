@@ -1,14 +1,4 @@
 import React from 'react'
-import { DivideIcon as LucideIcon } from 'lucide-react'
-
-interface StatCardProps {
-  title: string
-  value: string | number
-  icon: LucideIcon
-  change?: string
-  changeType?: 'positive' | 'negative' | 'neutral'
-  color?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error'
-}
 
 export default function StatCard({ 
   title, 
@@ -17,7 +7,7 @@ export default function StatCard({
   change, 
   changeType = 'neutral',
   color = 'primary' 
-}: StatCardProps) {
+}) {
   const colorClasses = {
     primary: 'bg-primary-50 text-primary-600',
     secondary: 'bg-secondary-50 text-secondary-600',

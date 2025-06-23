@@ -1,5 +1,5 @@
 import React from 'react'
-import { Users, UtensilsCrossed, Table2, DollarSign, TrendingUp, Clock, CheckCircle } from 'lucide-react'
+import { Users, UtensilsCrossed, Table2, DollarSign, TrendingUp, Clock } from 'lucide-react'
 import DashboardLayout from '../Layout/DashboardLayout'
 import StatCard from './StatCard'
 
@@ -10,32 +10,32 @@ export default function AdminDashboard() {
       value: '$12,847',
       icon: DollarSign,
       change: '+12.5% from last month',
-      changeType: 'positive' as const,
-      color: 'success' as const
+      changeType: 'positive',
+      color: 'success'
     },
     {
       title: 'Active Staff',
       value: '24',
       icon: Users,
       change: '+2 this week',
-      changeType: 'positive' as const,
-      color: 'primary' as const
+      changeType: 'positive',
+      color: 'primary'
     },
     {
       title: 'Menu Items',
       value: '156',
       icon: UtensilsCrossed,
       change: '+8 new items',
-      changeType: 'positive' as const,
-      color: 'secondary' as const
+      changeType: 'positive',
+      color: 'secondary'
     },
     {
       title: 'Tables',
       value: '32',
       icon: Table2,
       change: '85% occupancy',
-      changeType: 'neutral' as const,
-      color: 'accent' as const
+      changeType: 'neutral',
+      color: 'accent'
     }
   ]
 
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
     { id: '#004', table: 'Table 8', amount: '$28.90', status: 'pending', time: '12 min ago' },
   ]
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800'
