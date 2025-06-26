@@ -32,8 +32,7 @@ restaurant-management-system/
 ├── database/               # Database scripts
 │   ├── setup.sql          # Database setup
 │   ├── schema.sql         # Database schema
-│   ├── seed_data.sql      # Sample data
-│   └── migrations/        # Migration scripts
+│   └── seed_data.sql      # Sample data
 ├── docker-compose.yml     # Docker orchestration
 └── README.md
 ```
@@ -76,24 +75,49 @@ restaurant-management-system/
 - Node.js 18+
 - PostgreSQL 15+
 - Maven 3.6+
-- Docker & Docker Compose (optional)
+- pgAdmin (optional, for database management)
 
-### Database Setup
+### Database Setup with pgAdmin
 
-1. **Manual Setup:**
-   ```bash
-   # Install PostgreSQL and create database
-   sudo -u postgres psql -f database/setup.sql
+1. **Install PostgreSQL and pgAdmin**
+   - Download and install PostgreSQL from https://www.postgresql.org/download/
+   - Download and install pgAdmin from https://www.pgadmin.org/download/
+
+2. **Setup Database using pgAdmin:**
+   - Open pgAdmin and connect to your PostgreSQL server
+   - Right-click on "Databases" and select "Create" > "Database..."
+   - Name: `restaurant_db`
+   - Owner: `postgres` (or create a new user)
    
-   # Run schema and seed data
-   psql -d restaurant_db -U restaurant_user -f database/schema.sql
-   psql -d restaurant_db -U restaurant_user -f database/seed_data.sql
-   ```
+3. **Create User (Optional):**
+   - Right-click on "Login/Group Roles" and select "Create" > "Login/Group Role..."
+   - Name: `restaurant_user`
+   - Password: `restaurant_password`
+   - Privileges: Can login, Create databases
 
-2. **Docker Setup (Recommended):**
-   ```bash
-   docker-compose up postgres -d
-   ```
+4. **Run Database Scripts:**
+   - Open Query Tool in pgAdmin
+   - Run the scripts in this order:
+     1. `database/setup.sql`
+     2. `database/schema.sql`
+     3. `database/seed_data.sql`
+
+### Manual Database Setup (Command Line)
+
+```bash
+# Connect to PostgreSQL as superuser
+sudo -u postgres psql
+
+# Run setup script
+\i database/setup.sql
+
+# Connect to the new database
+\c restaurant_db
+
+# Run schema and seed data
+\i database/schema.sql
+\i database/seed_data.sql
+```
 
 ### Backend Setup
 ```bash
@@ -180,6 +204,36 @@ The system comes with pre-configured demo accounts:
 - Automatic timestamp updates via triggers
 - Proper normalization to reduce redundancy
 
+## pgAdmin Configuration
+
+### Connection Settings
+- **Host:** localhost
+- **Port:** 5432
+- **Database:** restaurant_db
+- **Username:** restaurant_user
+- **Password:** restaurant_password
+
+### Useful Queries for Testing
+```sql
+-- Check all users
+SELECT u.*, r.name as role FROM users u 
+JOIN user_roles ur ON u.id = ur.user_id 
+JOIN roles r ON ur.role_id = r.id;
+
+-- Check table status
+SELECT * FROM restaurant_tables ORDER BY table_number;
+
+-- Check menu items by category
+SELECT * FROM menu_items ORDER BY category, name;
+
+-- Check recent orders
+SELECT o.*, rt.table_number, u.full_name as staff_name 
+FROM orders o 
+LEFT JOIN restaurant_tables rt ON o.table_id = rt.id 
+LEFT JOIN users u ON o.staff_id = u.id 
+ORDER BY o.created_at DESC;
+```
+
 ## Troubleshooting
 
 ### Connection Issues
@@ -193,6 +247,12 @@ The system comes with pre-configured demo accounts:
 2. Check if demo users exist in database
 3. Ensure roles are properly seeded
 4. Check browser network tab for API errors
+
+### Database Issues
+1. Verify database exists and user has proper permissions
+2. Check if all tables are created properly
+3. Ensure seed data is inserted
+4. Use pgAdmin to inspect database structure
 
 ## Development
 

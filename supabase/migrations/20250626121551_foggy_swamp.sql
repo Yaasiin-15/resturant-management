@@ -1,4 +1,5 @@
 -- Restaurant Management System Database Schema
+-- Run this after connecting to restaurant_db as restaurant_user
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -109,6 +110,13 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop triggers if they exist and recreate them
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+DROP TRIGGER IF EXISTS update_restaurant_tables_updated_at ON restaurant_tables;
+DROP TRIGGER IF EXISTS update_menu_items_updated_at ON menu_items;
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
+DROP TRIGGER IF EXISTS update_reservations_updated_at ON reservations;
 
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_restaurant_tables_updated_at BEFORE UPDATE ON restaurant_tables FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

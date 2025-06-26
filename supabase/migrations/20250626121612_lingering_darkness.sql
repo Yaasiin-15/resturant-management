@@ -1,4 +1,5 @@
 -- Seed data for Restaurant Management System
+-- Run this after schema.sql
 
 -- Insert roles
 INSERT INTO roles (name) VALUES 
@@ -52,8 +53,7 @@ INSERT INTO menu_items (name, description, price, category, is_available) VALUES
     ('Soft Drinks', 'Coca-Cola, Pepsi, Sprite, Orange', 2.99, 'Beverages', true),
     ('Fresh Juice', 'Orange, Apple, Cranberry', 4.99, 'Beverages', true),
     ('Wine Glass', 'House red or white wine', 8.99, 'Beverages', true),
-    ('Beer', 'Domestic and imported beers', 5.99, 'Beverages', true)
-ON CONFLICT DO NOTHING;
+    ('Beer', 'Domestic and imported beers', 5.99, 'Beverages', true);
 
 -- Insert sample reservations
 INSERT INTO reservations (table_id, customer_name, customer_phone, customer_email, party_size, reservation_date, reservation_time, status, notes) VALUES
@@ -61,5 +61,4 @@ INSERT INTO reservations (table_id, customer_name, customer_phone, customer_emai
     (9, 'Sarah Johnson', '555-0456', 'sarah.j@email.com', 6, CURRENT_DATE + INTERVAL '2 days', '18:30:00', 'CONFIRMED', 'Birthday celebration'),
     (3, 'Mike Wilson', '555-0789', 'mike.w@email.com', 4, CURRENT_DATE, '20:00:00', 'CONFIRMED', 'Business dinner'),
     (11, 'Emily Davis', '555-0321', 'emily.d@email.com', 2, CURRENT_DATE + INTERVAL '3 days', '19:30:00', 'CONFIRMED', 'Date night'),
-    (5, 'Robert Brown', '555-0654', 'robert.b@email.com', 6, CURRENT_DATE + INTERVAL '1 day', '18:00:00', 'CONFIRMED', 'Family dinner')
-ON CONFLICT DO NOTHING;
+    (5, 'Robert Brown', '555-0654', 'robert.b@email.com', 6, CURRENT_DATE + INTERVAL '1 day', '18:00:00', 'CONFIRMED', 'Family dinner');
