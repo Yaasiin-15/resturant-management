@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 class ApiClient {
   getAuthHeaders() {
@@ -10,7 +10,7 @@ class ApiClient {
   }
 
   async login(credentials) {
-    const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ class ApiClient {
   }
 
   async register(userData) {
-    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ class ApiClient {
   }
 
   async getProfile() {
-    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
       headers: this.getAuthHeaders(),
     })
 
@@ -57,7 +57,7 @@ class ApiClient {
 
   // Menu API
   async getMenuItems() {
-    const response = await fetch(`${API_BASE_URL}/menu/items`, {
+    const response = await fetch(`${API_BASE_URL}/api/menu/items`, {
       headers: this.getAuthHeaders(),
     })
 
@@ -70,7 +70,7 @@ class ApiClient {
 
   // Tables API
   async getTables() {
-    const response = await fetch(`${API_BASE_URL}/tables`, {
+    const response = await fetch(`${API_BASE_URL}/api/tables`, {
       headers: this.getAuthHeaders(),
     })
 
@@ -83,7 +83,7 @@ class ApiClient {
 
   // Orders API
   async getOrders() {
-    const response = await fetch(`${API_BASE_URL}/orders`, {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
       headers: this.getAuthHeaders(),
     })
 
@@ -96,7 +96,7 @@ class ApiClient {
 
   // Reservations API
   async getReservations() {
-    const response = await fetch(`${API_BASE_URL}/reservations`, {
+    const response = await fetch(`${API_BASE_URL}/api/reservations`, {
       headers: this.getAuthHeaders(),
     })
 

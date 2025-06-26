@@ -1,6 +1,6 @@
 # Restaurant Management System
 
-A comprehensive restaurant management system built with React frontend and Spring Boot backend.
+A comprehensive restaurant management system built with React frontend and Spring Boot backend, connected to PostgreSQL database.
 
 ## Project Structure
 
@@ -30,6 +30,7 @@ restaurant-management-system/
 │   ├── pom.xml
 │   └── Dockerfile
 ├── database/               # Database scripts
+│   ├── setup.sql          # Database setup
 │   ├── schema.sql         # Database schema
 │   ├── seed_data.sql      # Sample data
 │   └── migrations/        # Migration scripts
@@ -81,11 +82,8 @@ restaurant-management-system/
 
 1. **Manual Setup:**
    ```bash
-   # Create database and user
-   createdb restaurant_db
-   createuser restaurant_user
-   psql -d restaurant_db -c "ALTER USER restaurant_user WITH PASSWORD 'restaurant_password';"
-   psql -d restaurant_db -c "GRANT ALL PRIVILEGES ON DATABASE restaurant_db TO restaurant_user;"
+   # Install PostgreSQL and create database
+   sudo -u postgres psql -f database/setup.sql
    
    # Run schema and seed data
    psql -d restaurant_db -U restaurant_user -f database/schema.sql
@@ -181,6 +179,20 @@ The system comes with pre-configured demo accounts:
 - Indexes for query performance
 - Automatic timestamp updates via triggers
 - Proper normalization to reduce redundancy
+
+## Troubleshooting
+
+### Connection Issues
+1. Ensure PostgreSQL is running on port 5432
+2. Check database credentials in `application.properties`
+3. Verify CORS settings allow frontend origin
+4. Check firewall settings for ports 5173, 8080, 5432
+
+### Authentication Issues
+1. Verify JWT secret is properly configured
+2. Check if demo users exist in database
+3. Ensure roles are properly seeded
+4. Check browser network tab for API errors
 
 ## Development
 
