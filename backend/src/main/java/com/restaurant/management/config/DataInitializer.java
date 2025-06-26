@@ -5,16 +5,21 @@ import com.restaurant.management.model.Role;
 import com.restaurant.management.model.User;
 import com.restaurant.management.repository.RoleRepository;
 import com.restaurant.management.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
     private RoleRepository roleRepository;
@@ -26,42 +31,60 @@ public class DataInitializer implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
-        // Initialize roles if they don't exist
-        Role adminRole = null, managerRole = null, staffRole = null;
+        try {
+            logger.info("Starting data initialization...");
+            
+            // Initialize roles if they don't exist
+            Role adminRole = initializeRole(ERole.ROLE_ADMIN);
+            Role managerRole = initializeRole(ERole.ROLE_MANAGER);
+            Role staffRole = initializeRole(ERole.ROLE_STAFF);
 
-        if (roleRepository.findByName(ERole.ROLE_ADMIN).isEmpty()) {
-            adminRole = roleRepository.save(new Role(ERole.ROLE_ADMIN));
-        } else {
-            adminRole = roleRepository.findByName(ERole.ROLE_ADMIN).get();
+            // Create demo users if they don't exist
+            createDemoUserIfNotExists("admin@restaurant.com", "Admin User", adminRole);
+            createDemoUserIfNotExists("manager@restaurant.com", "Manager User", managerRole);
+            createDemoUserIfNotExists("staff@restaurant.com", "Staff User", staffRole);
+            
+            logger.info("Data initialization completed successfully");
+        } catch (Exception e) {
+            logger.error("Error during data initialization: ", e);
+            throw e;
         }
+    }
 
-        if (roleRepository.findByName(ERole.ROLE_MANAGER).isEmpty()) {
-            managerRole = roleRepository.save(new Role(ERole.ROLE_MANAGER));
-        } else {
-            managerRole = roleRepository.findByName(ERole.ROLE_MANAGER).get();
+    private Role initializeRole(ERole roleEnum) {
+        try {
+            return roleRepository.findByName(roleEnum)
+                    .orElseGet(() -> {
+                        logger.info("Creating role: {}", roleEnum);
+                        Role newRole = new Role(roleEnum);
+                        return roleRepository.save(newRole);
+                    });
+        } catch (Exception e) {
+            logger.error("Error initializing role {}: ", roleEnum, e);
+            throw e;
         }
-
-        if (roleRepository.findByName(ERole.ROLE_STAFF).isEmpty()) {
-            staffRole = roleRepository.save(new Role(ERole.ROLE_STAFF));
-        } else {
-            staffRole = roleRepository.findByName(ERole.ROLE_STAFF).get();
-        }
-
-        // Create demo users if they don't exist
-        createDemoUserIfNotExists("admin@restaurant.com", "Admin User", adminRole);
-        createDemoUserIfNotExists("manager@restaurant.com", "Manager User", managerRole);
-        createDemoUserIfNotExists("staff@restaurant.com", "Staff User", staffRole);
     }
 
     private void createDemoUserIfNotExists(String email, String fullName, Role role) {
-        if (!userRepository.existsByEmail(email)) {
-            User user = new User(fullName, email, passwordEncoder.encode("password123"));
-            Set<Role> roles = new HashSet<>();
-            roles.add(role);
-            user.setRoles(roles);
-            userRepository.save(user);
-            System.out.println("Created demo user: " + email + " with password: password123");
+        try {
+            if (!userRepository.existsByEmail(email)) {
+                logger.info("Creating demo user: {}", email);
+                
+                User user = new User(fullName, email, passwordEncoder.encode("password123"));
+                Set<Role> roles = new HashSet<>();
+                roles.add(role);
+                user.setRoles(roles);
+                
+                userRepository.save(user);
+                logger.info("Created demo user: {} with password: password123", email);
+            } else {
+                logger.info("Demo user already exists: {}", email);
+            }
+        } catch (Exception e) {
+            logger.error("Error creating demo user {}: ", email, e);
+            throw e;
         }
     }
 }
