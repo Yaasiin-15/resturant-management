@@ -1,8 +1,10 @@
 package com.restaurant.management.controller;
 
 import com.restaurant.management.model.MenuItem;
-import com.restaurant.management.repository.MenuItemRepository;
+import com.restaurant.management.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,41 +18,37 @@ import java.util.Optional;
 public class MenuController {
 
     @Autowired
-    private MenuItemRepository menuItemRepository;
+    private MenuService menuService;
 
     @GetMapping("/items")
     public List<MenuItem> getAllMenuItems() {
-        return menuItemRepository.findAll();
+        return menuService.getAllMenuItems();
+    }
+
+    @GetMapping("/items/page")
+    public Page<MenuItem> getAllMenuItems(Pageable pageable) {
+        return menuService.getAllMenuItems(pageable);
     }
 
     @GetMapping("/items/{id}")
     public ResponseEntity<MenuItem> getMenuItemById(@PathVariable Long id) {
-        Optional<MenuItem> menuItem = menuItemRepository.findById(id);
+        Optional<MenuItem> menuItem = menuService.getMenuItemById(id);
         return menuItem.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/items")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public MenuItem createMenuItem(@RequestBody MenuItem menuItem) {
-        return menuItemRepository.save(menuItem);
+        return menuService.createMenuItem(menuItem);
     }
 
     @PutMapping("/items/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<MenuItem> updateMenuItem(@PathVariable Long id, @RequestBody MenuItem menuItemDetails) {
-        Optional<MenuItem> optionalMenuItem = menuItemRepository.findById(id);
-        
-        if (optionalMenuItem.isPresent()) {
-            MenuItem menuItem = optionalMenuItem.get();
-            menuItem.setName(menuItemDetails.getName());
-            menuItem.setDescription(menuItemDetails.getDescription());
-            menuItem.setPrice(menuItemDetails.getPrice());
-            menuItem.setCategory(menuItemDetails.getCategory());
-            menuItem.setImageUrl(menuItemDetails.getImageUrl());
-            menuItem.setIsAvailable(menuItemDetails.getIsAvailable());
-            
-            return ResponseEntity.ok(menuItemRepository.save(menuItem));
-        } else {
+        try {
+            MenuItem updatedMenuItem = menuService.updateMenuItem(id, menuItemDetails);
+            return ResponseEntity.ok(updatedMenuItem);
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -58,20 +56,32 @@ public class MenuController {
     @DeleteMapping("/items/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
-        return menuItemRepository.findById(id)
-                .map(menuItem -> {
-                    menuItemRepository.delete(menuItem);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.notFound().build());
+        try {
+            menuService.deleteMenuItem(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/items/category/{category}")
     public List<MenuItem> getMenuItemsByCategory(@PathVariable String category) {
-        return menuItemRepository.findByCategory(category);
+        return menuService.getMenuItemsByCategory(category);
     }
 
     @GetMapping("/items/available")
     public List<MenuItem> getAvailableMenuItems() {
-        return menuItemRepository.findByIsAvailable(true);
+        return menuService.getAvailableMenuItems();
+    }
+
+    @PutMapping("/items/{id}/toggle-availability")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<MenuItem> toggleMenuItemAvailability(@PathVariable Long id) {
+        try {
+            MenuItem updatedMenuItem = menuService.toggleAvailability(id);
+            return ResponseEntity.ok(updatedMenuItem);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

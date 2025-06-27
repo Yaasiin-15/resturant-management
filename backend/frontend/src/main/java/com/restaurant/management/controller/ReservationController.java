@@ -2,7 +2,7 @@ package com.restaurant.management.controller;
 
 import com.restaurant.management.model.Reservation;
 import com.restaurant.management.model.ReservationStatus;
-import com.restaurant.management.repository.ReservationRepository;
+import com.restaurant.management.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -19,41 +19,30 @@ import java.util.Optional;
 public class ReservationController {
 
     @Autowired
-    private ReservationRepository reservationRepository;
+    private ReservationService reservationService;
 
     @GetMapping
     public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+        return reservationService.getAllReservations();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Optional<Reservation> reservation = reservationRepository.findById(id);
+        Optional<Reservation> reservation = reservationService.getReservationById(id);
         return reservation.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public Reservation createReservation(@RequestBody Reservation reservation) {
-        return reservationRepository.save(reservation);
+        return reservationService.createReservation(reservation);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody Reservation reservationDetails) {
-        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
-        
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            reservation.setCustomerName(reservationDetails.getCustomerName());
-            reservation.setCustomerPhone(reservationDetails.getCustomerPhone());
-            reservation.setCustomerEmail(reservationDetails.getCustomerEmail());
-            reservation.setPartySize(reservationDetails.getPartySize());
-            reservation.setReservationDate(reservationDetails.getReservationDate());
-            reservation.setReservationTime(reservationDetails.getReservationTime());
-            reservation.setStatus(reservationDetails.getStatus());
-            reservation.setNotes(reservationDetails.getNotes());
-            
-            return ResponseEntity.ok(reservationRepository.save(reservation));
-        } else {
+        try {
+            Reservation updatedReservation = reservationService.updateReservation(id, reservationDetails);
+            return ResponseEntity.ok(updatedReservation);
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -61,32 +50,52 @@ public class ReservationController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<?> deleteReservation(@PathVariable Long id) {
-        return reservationRepository.findById(id)
-                .map(reservation -> {
-                    reservationRepository.delete(reservation);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.notFound().build());
+        try {
+            reservationService.deleteReservation(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/date/{date}")
     public List<Reservation> getReservationsByDate(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return reservationRepository.findByReservationDate(date);
+        return reservationService.getReservationsByDate(date);
     }
 
     @GetMapping("/status/{status}")
     public List<Reservation> getReservationsByStatus(@PathVariable ReservationStatus status) {
-        return reservationRepository.findByStatus(status);
+        return reservationService.getReservationsByStatus(status);
     }
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Reservation> updateReservationStatus(@PathVariable Long id, @RequestBody ReservationStatus status) {
-        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
-        
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            reservation.setStatus(status);
-            return ResponseEntity.ok(reservationRepository.save(reservation));
-        } else {
+        try {
+            Reservation updatedReservation = reservationService.updateReservationStatus(id, status);
+            return ResponseEntity.ok(updatedReservation);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<Reservation> cancelReservation(@PathVariable Long id) {
+        try {
+            Reservation cancelledReservation = reservationService.cancelReservation(id);
+            return ResponseEntity.ok(cancelledReservation);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}/complete")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<Reservation> completeReservation(@PathVariable Long id) {
+        try {
+            Reservation completedReservation = reservationService.completeReservation(id);
+            return ResponseEntity.ok(completedReservation);
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
