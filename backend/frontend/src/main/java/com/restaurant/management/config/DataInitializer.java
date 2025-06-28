@@ -34,17 +34,18 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         try {
-            logger.info("Starting data initialization...");
+            logger.info("Starting data initialization for Restaurant Management System...");
             
             // Initialize roles if they don't exist
             Role adminRole = initializeRole(ERole.ROLE_ADMIN);
             Role managerRole = initializeRole(ERole.ROLE_MANAGER);
             Role staffRole = initializeRole(ERole.ROLE_STAFF);
 
-            // Create demo users if they don't exist
+            // Create admin user (for default login)
             createDemoUserIfNotExists("admin@restaurant.com", "Admin User", adminRole);
-            createDemoUserIfNotExists("manager@restaurant.com", "Manager User", managerRole);
-            createDemoUserIfNotExists("staff@restaurant.com", "Staff User", staffRole);
+            
+            // Note: Manager and Staff users will be created through registration
+            logger.info("Admin user initialized. Managers and Staff should register through the frontend.");
             
             logger.info("Data initialization completed successfully");
         } catch (Exception e) {

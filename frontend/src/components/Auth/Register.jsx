@@ -9,7 +9,7 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'staff'
+    role: 'manager'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -83,8 +83,8 @@ export default function Register() {
           <h2 className="mt-6 text-3xl font-bold text-neutral-900">
             Create your account
           </h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            Join RestaurantPro and start managing your restaurant
+          <p className="mt-2 text-sm text-neutral-600 text-center">
+            For Managers and Staff - Admin uses the login form
           </p>
         </div>
 
@@ -146,9 +146,8 @@ export default function Register() {
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="staff">Staff</option>
                 <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
               </select>
             </div>
 
@@ -220,13 +219,23 @@ export default function Register() {
 
             <div className="text-center">
               <span className="text-sm text-neutral-600">
-                Already have an account?{' '}
+                Are you an Admin?{' '}
                 <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-                  Sign in
+                  Use Admin Login
                 </Link>
               </span>
             </div>
           </form>
+
+          {/* Info Box */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">ℹ️ Account Information:</h4>
+            <div className="text-xs text-blue-800 space-y-1">
+              <p><strong>Managers:</strong> Create your account here with manager role</p>
+              <p><strong>Staff:</strong> Create your account here with staff role</p>
+              <p><strong>Admins:</strong> Use the pre-configured login form</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

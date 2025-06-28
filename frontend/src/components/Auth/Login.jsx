@@ -4,8 +4,8 @@ import { ChefHat, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@restaurant.com')
+  const [password, setPassword] = useState('password123')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -46,8 +46,8 @@ export default function Login() {
           <h2 className="mt-6 text-3xl font-bold text-neutral-900">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            Sign in to your RestaurantPro account
+          <p className="mt-2 text-sm text-neutral-600 text-center">
+            Admin login - credentials are pre-filled
           </p>
         </div>
 
@@ -145,12 +145,11 @@ export default function Login() {
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h4>
-            <div className="text-xs text-blue-800 space-y-1">
-              <p><strong>Admin:</strong> admin@restaurant.com / password123</p>
-              <p><strong>Manager:</strong> manager@restaurant.com / password123</p>
-              <p><strong>Staff:</strong> staff@restaurant.com / password123</p>
+          <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <h4 className="text-sm font-medium text-orange-900 mb-2">📝 Note for Other Roles:</h4>
+            <div className="text-xs text-orange-800">
+              <p><strong>Managers and Staff:</strong> Please use the registration form to create your account.</p>
+              <p className="mt-1">Admin credentials are pre-filled above for quick access.</p>
             </div>
           </div>
         </div>
